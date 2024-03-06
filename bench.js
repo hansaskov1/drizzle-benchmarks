@@ -7,12 +7,14 @@ const data = new SharedArray('requests', function () {
   return JSON.parse(open('./data/requests.json'));
 });
 
-const host = `http://37.27.9.79:3000`;
+//const host = `http://127.0.0.1:3000`;
+ const host = `http://37.27.9.79:3000`;
+
 
 export const options = {
   vus: 500,
   iterations: 600000,
-  duration: '1m'
+  duration: '10m'
 };
 
 export default function () {
