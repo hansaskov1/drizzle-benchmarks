@@ -306,4 +306,4 @@ async function main(size: keyof typeof sizes) {
   }
 }
 
-main("micro");
+main("nano");

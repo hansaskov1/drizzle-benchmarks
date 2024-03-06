@@ -10,6 +10,8 @@ async function main() {
   }
   const image = "postgres";
 
+
+
   await docker.pull(image);
 
   const pgContainer = await docker.createContainer({

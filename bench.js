@@ -7,7 +7,7 @@ const data = new SharedArray('requests', function () {
   return JSON.parse(open('./data/requests.json'));
 });
 
-const host = `http://192.168.31.144:3000`; // drizzle
+const host = `http://127.0.0.1:3000`; // drizzle
 // const host = `http://192.168.31.144:3001`; // prisma
 
 export const options = {

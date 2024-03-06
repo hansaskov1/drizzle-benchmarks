@@ -113,7 +113,7 @@ const p12 = db
     shipCity: orders.shipCity,
     shipCountry: orders.shipCountry,
     productsCount: sql`count(${details.productId})`.as<number>(),
-    quantitySum: sql`sum(${details.quantity})`.as<number>(),
+    quantitySum: sql<number>`sum(${details.quantity})`,
     totalPrice:
       sql`sum(${details.quantity} * ${details.unitPrice})`.as<number>(),
   })
