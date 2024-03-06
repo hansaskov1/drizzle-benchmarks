@@ -202,5 +202,5 @@ app.get("/order-with-details-and-products", async (c) => {
 
 serve({
   fetch: app.fetch,
-  port: 3001,
+  port: 3000,
 });
