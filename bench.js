@@ -7,12 +7,13 @@ const data = new SharedArray('requests', function () {
   return JSON.parse(open('./data/requests.json'));
 });
 
-const host = `http://127.0.0.1:3000`; // drizzle
+const host = `http://nkwgss0.37.27.9.79.sslip.io/`; // drizzle
 // const host = `http://192.168.31.144:3001`; // prisma
 
 export const options = {
-  vus: 2500,
-  iterations: 1e6,
+  vus: 500,
+  iterations: 500 * 60 * 1 * 1,
+  duration: '1m'
 };
   
 export default function () {
