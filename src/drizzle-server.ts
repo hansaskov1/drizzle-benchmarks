@@ -1,6 +1,5 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { compress } from 'hono/compress'
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
 import { Pool } from "pg";
@@ -145,7 +144,6 @@ const p13 = db.query.orders
   .prepare("p13");
 
 const app = new Hono();
-app.use(compress());
 app.get("/customers", async (c) => {
   const limit = Number(c.req.query("limit"));
   const offset = Number(c.req.query("offset"));
