@@ -127,28 +127,29 @@ app.get("/orders-with-details", async (c) => {
     skip: offset,
     orderBy: {
       id: "asc",
-    },
+    }
   });
 
-  const result = res.map((item) => {
-    return {
-      id: item.id,
-      shippedDate: item.shippedDate,
-      shipName: item.shipName,
-      shipCity: item.shipCity,
-      shipCountry: item.shipCountry,
-      productsCount: item.details.length,
-      quantitySum: item.details.reduce(
-        (sum, deteil) => (sum += +deteil.quantity),
-        0
-      ),
-      totalPrice: item.details.reduce(
-        (sum, deteil) => (sum += +deteil.quantity * +deteil.unitPrice),
-        0
-      ),
-    };
-  });
-  return c.json(result);
+
+const result = res.map((item) => {
+  return {
+    id: item.id,
+    shippedDate: item.shippedDate,
+    shipName: item.shipName,
+    shipCity: item.shipCity,
+    shipCountry: item.shipCountry,
+    productsCount: item.details.length,
+    quantitySum: item.details.reduce(
+      (sum, deteil) => (sum += +deteil.quantity),
+      0
+    ),
+    totalPrice: item.details.reduce(
+      (sum, deteil) => (sum += +deteil.quantity * +deteil.unitPrice),
+      0
+    ),
+  };
+});
+return c.json(result);
 });
 
 app.get("/order-with-details", async (c) => {

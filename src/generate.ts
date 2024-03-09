@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { customers, employees, orders, products, suppliers } from "./schema";
 import { sql } from "drizzle-orm";
+import * as graph from "./graphql"
 import "dotenv/config";
 
 // prettier-ignore
@@ -75,6 +76,7 @@ const main = async () => {
     })
     .from(customers);
 
+
   const [
     { minId: suppliersMinId, maxId: suppliersMaxId, count: suppliersCount },
   ] = await db
@@ -111,6 +113,7 @@ const main = async () => {
 
   const requests: string[] = [];
   const requests2: string[] = [];
+  const requests3: string[] = [];
 
   // 20k requests to fetch customers by id
   for (let i = 1; i < 2e4; i += 1) {
@@ -118,9 +121,11 @@ const main = async () => {
     const id = customerIds[idx];
     requests.push(`/customer-by-id?id=${id}`);
     // requests2.push(`/customer-by-id?id=${id}`);
+    requests3.push(graph.customers_by_id(id));
   }
   shuffle(requests);
   shuffle(requests2);
+  shuffle(requests3);
 
   // 5k requests to serch customers
   const searchCustomersRequests = [];
@@ -129,9 +134,11 @@ const main = async () => {
     const term = customerSearches[idx];
     requests.push(`/search-customer?term=${term}`);
     searchCustomersRequests.push(`/search-customer?term=${term}`);
+    requests3.push(graph.customers_search(term));
   }
   shuffle(requests);
   shuffle(requests2);
+  shuffle(requests3);
 
   // 50k requests to search products
   const searchProductRequests = [];
@@ -140,8 +147,10 @@ const main = async () => {
     const term = productSearches[idx];
     requests.push(`/search-product?term=${term}`);
     searchProductRequests.push(`/search-product?term=${term}`);
+    requests3.push(graph.product_search(term));
   }
   shuffle(requests);
+  shuffle(requests3);
 
   // 5k requests to get employee by id with recipient
   for (let i = 0; i < 5e3; i++) {
@@ -149,9 +158,11 @@ const main = async () => {
     const id = employeeIds[idx];
     requests.push(`/employee-with-recipient?id=${id}`);
     // requests2.push(`/employee-with-recipient?id=${id}`);
+    requests3.push(graph.employee_with_recipient(id));
   }
   shuffle(requests);
   shuffle(requests2);
+  shuffle(requests3);
 
   // 30k requests to get suppliers
   for (let i = 0; i < 3e4; i++) {
@@ -159,8 +170,10 @@ const main = async () => {
     const id = supplierIds[idx];
     requests.push(`/supplier-by-id?id=${id}`);
     // requests2.push(`/supplier-by-id?id=${id}`);
+    requests3.push(graph.suppliers_by_id(id));
   }
   shuffle(requests2);
+  shuffle(requests3);
 
   const productsWithSuppliers = [];
   // 100k requests to get product by id with supplier
@@ -170,9 +183,11 @@ const main = async () => {
     requests.push(`/product-with-supplier?id=${id}`);
     productsWithSuppliers.push(`/product-with-supplier?id=${id}`);
     // requests2.push(`/product-with-supplier?id=${id}`)
+    requests3.push(graph.product_with_suppliers(id));
   }
   shuffle(requests);
   shuffle(requests2);
+  shuffle(requests3);
 
   // 100k requests to get order with details
   for (let i = 0; i < 1e5; i++) {
@@ -180,9 +195,11 @@ const main = async () => {
     const id = orderIds[idx];
     requests.push(`/order-with-details?id=${id}`);
     // requests2.push(`/order-with-details?id=${id}`);
+    requests3.push(graph.order_with_details(id));
   }
   shuffle(requests);
   shuffle(requests2);
+  shuffle(requests3);
 
   const ordersFull = [];
   // 100k requests to get order with details and products
@@ -192,9 +209,11 @@ const main = async () => {
     requests.push(`/order-with-details-and-products?id=${id}`);
     ordersFull.push(`/order-with-details-and-products?id=${id}`);
     // requests2.push(`/order-with-details-and-products?id=${id}`)
+    requests3.push(graph.order_with_details_and_products(id));
   }
   shuffle(requests);
   shuffle(requests2);
+  shuffle(requests3);
 
   // 2k paginated customers
   const totalCount = 10000;
@@ -206,9 +225,11 @@ const main = async () => {
 
     requests.push(`/customers?limit=${limit}&offset=${offset}`);
     // requests2.push(`/customers?limit=${limit}&offset=${offset}`);
+    requests3.push(graph.customers(limit, offset));
   }
   shuffle(requests);
   shuffle(requests2);
+  shuffle(requests3);
 
   // 1k paginated employees
   const totalCount2 = 100;
@@ -220,9 +241,11 @@ const main = async () => {
 
     requests.push(`/employees?limit=${limit}&offset=${offset}`);
     // requests2.push(`/employees?limit=${limit}&offset=${offset}`);
+    requests3.push(graph.employees(limit, offset));
   }
   shuffle(requests);
   shuffle(requests2);
+  shuffle(requests3);
 
   // 1k paginated suppliers
   const totalCount3 = 10000;
@@ -234,8 +257,10 @@ const main = async () => {
 
     requests.push(`/suppliers?limit=${limit}&offset=${offset}`);
     // requests2.push(`/suppliers?limit=${limit}&offset=${offset}`);
+    requests3.push(graph.suppliers(limit, offset));
   }
   shuffle(requests2);
+  shuffle(requests3);
 
   // 3k paginated products
   const totalCount4 = 1000;
@@ -247,9 +272,11 @@ const main = async () => {
 
     requests.push(`/products?limit=${limit}&offset=${offset}`);
     // requests2.push(`/products?limit=${limit}&offset=${offset}`);
+    requests3.push(graph.products(limit, offset));
   }
   shuffle(requests);
   shuffle(requests2);
+  shuffle(requests3);
 
   // 10k paginated orders-with-details
   const totalCount5 = 830;
@@ -261,9 +288,11 @@ const main = async () => {
 
     requests.push(`/orders-with-details?limit=${limit}&offset=${offset}`);
     requests2.push(`/orders-with-details?limit=${limit}&offset=${offset}`);
+    requests3.push(graph.orders_with_details(limit, offset));
   }
   shuffle(requests);
   shuffle(requests2);
+  shuffle(requests3);
 
   shuffle(requests);
   shuffle(requests);
@@ -274,11 +303,22 @@ const main = async () => {
   shuffle(requests);
   shuffle(requests);
   shuffle(requests);
+
+  shuffle(requests3);
+  shuffle(requests3);
+  shuffle(requests3);
+  shuffle(requests3);
+  shuffle(requests3);
+  shuffle(requests3);
+  shuffle(requests3);
+  shuffle(requests3);
+  shuffle(requests3);
 
   console.log(requests.length, "shuffled requests");
 
   fs.writeFileSync("./data/requests.json", JSON.stringify(requests));
   fs.writeFileSync("./data/requests2.json", JSON.stringify(requests2));
+  fs.writeFileSync("./data/requests_graphql.json", JSON.stringify(requests3));
   fs.writeFileSync(
     "./data/search-customers.json",
     JSON.stringify(searchCustomersRequests)

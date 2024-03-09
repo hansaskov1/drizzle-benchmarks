@@ -1,9 +1,10 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { compress } from 'hono/compress'
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
 import { Pool } from "pg";
-import { eq, placeholder, sql, asc } from "drizzle-orm";
+import { eq, sql, asc } from "drizzle-orm";
 import {
   customers,
   details,
@@ -19,30 +20,29 @@ const db = drizzle(pool, { schema, logger: false });
 
 const p1 = db.query.customers
   .findMany({
-    limit: placeholder("limit"),
-    offset: placeholder("offset"),
+    limit: sql.placeholder("limit"),
+    offset: sql.placeholder("offset"),
     orderBy: customers.id,
   })
   .prepare("p1");
 
 const p2 = db.query.customers
   .findFirst({
-    where: eq(customers.id, placeholder("id")),
+    where: eq(customers.id, sql.placeholder("id")),
   })
   .prepare("p2");
 
 const p3 = db.query.customers
   .findMany({
-    where: sql`to_tsvector('english', ${
-      customers.companyName
-    }) @@ to_tsquery('english', ${placeholder("term")})`,
+    where: sql`to_tsvector('english', ${customers.companyName
+      }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
   })
   .prepare("p3");
 
 const p4 = db.query.employees
   .findMany({
-    limit: placeholder("limit"),
-    offset: placeholder("offset"),
+    limit: sql.placeholder("limit"),
+    offset: sql.placeholder("offset"),
     orderBy: employees.id,
   })
   .prepare("p4");
@@ -52,35 +52,35 @@ const p5 = db.query.employees
     with: {
       recipient: true,
     },
-    where: eq(employees.id, placeholder("id")),
+    where: eq(employees.id, sql.placeholder("id")),
   })
   .prepare("p5");
 
 const p6 = db.query.suppliers
   .findMany({
-    limit: placeholder("limit"),
-    offset: placeholder("offset"),
+    limit: sql.placeholder("limit"),
+    offset: sql.placeholder("offset"),
     orderBy: suppliers.id,
   })
   .prepare("p6");
 
 const p7 = db.query.suppliers
   .findFirst({
-    where: eq(suppliers.id, placeholder("id")),
+    where: eq(suppliers.id, sql.placeholder("id")),
   })
   .prepare("p7");
 
 const p8 = db.query.products
   .findMany({
-    limit: placeholder("limit"),
-    offset: placeholder("offset"),
+    limit: sql.placeholder("limit"),
+    offset: sql.placeholder("offset"),
     orderBy: products.id,
   })
   .prepare("p8");
 
 const p9 = db.query.products
   .findMany({
-    where: eq(products.id, placeholder("id")),
+    where: eq(products.id, sql.placeholder("id")),
     with: {
       supplier: true,
     },
@@ -89,9 +89,8 @@ const p9 = db.query.products
 
 const p10 = db.query.products
   .findMany({
-    where: sql`to_tsvector('english', ${
-      products.name
-    }) @@ to_tsquery('english', ${placeholder("term")})`,
+    where: sql`to_tsvector('english', ${products.name
+      }) @@ to_tsquery('english', ${sql.placeholder("term")})`,
   })
   .prepare("p10");
 
@@ -110,8 +109,8 @@ const p11 = db
   .leftJoin(details, eq(details.orderId, orders.id))
   .groupBy(orders.id)
   .orderBy(asc(orders.id))
-  .limit(placeholder("limit"))
-  .offset(placeholder("offset"))
+  .limit(sql.placeholder("limit"))
+  .offset(sql.placeholder("offset"))
   .prepare("p11");
 
 const p12 = db
@@ -127,7 +126,7 @@ const p12 = db
   })
   .from(orders)
   .leftJoin(details, eq(details.orderId, orders.id))
-  .where(eq(orders.id, placeholder("id")))
+  .where(eq(orders.id, sql.placeholder("id")))
   .groupBy(orders.id)
   .orderBy(asc(orders.id))
   .prepare("p12");
@@ -141,11 +140,12 @@ const p13 = db.query.orders
         },
       },
     },
-    where: eq(orders.id, placeholder("id")),
+    where: eq(orders.id, sql.placeholder("id")),
   })
   .prepare("p13");
 
 const app = new Hono();
+app.use(compress());
 app.get("/customers", async (c) => {
   const limit = Number(c.req.query("limit"));
   const offset = Number(c.req.query("offset"));
