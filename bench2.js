@@ -7,7 +7,7 @@ const data = new SharedArray('requests', function () {
   return JSON.parse(open('./data/requests_graphql.json'));
 });
 
-const host = `http://37.27.9.79:8090`;
+const host = `http://37.27.9.79:3000`;
 
 export const options = {
   vus: 500,
