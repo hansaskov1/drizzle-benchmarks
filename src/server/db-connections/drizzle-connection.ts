@@ -14,7 +14,7 @@ import {
 import "dotenv/config";
 import { DbInterface } from "../db-interface";
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 8, min: 8 });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 32, min: 32 });
 const db = drizzle(pool, { schema });
 
 const p1 = db
