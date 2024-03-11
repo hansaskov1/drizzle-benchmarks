@@ -1,7 +1,7 @@
 import fs from "fs";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { customers, employees, orders, products, suppliers } from "./schema";
+import { customers, employees, orders, products, suppliers } from "../server/db-connections/schema";
 import { sql } from "drizzle-orm";
 import * as graph from "./graphql"
 import "dotenv/config";
